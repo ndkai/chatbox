@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'message_bubble.dart';
 
 class ChatPage extends StatefulWidget {
@@ -30,8 +31,10 @@ class _ChatPageState extends State<ChatPage> {
 
     _scrollToBottom();
 
-    // simulate response
-    _fakeChatGPTResponse("Sure! Here's an example of streaming response that renders three words at a time like ChatGPT typing effect.");
+    // simulate streaming ChatGPT response
+    _fakeChatGPTResponse(
+      "Sure! Here's an example of streaming response that renders three words at a time like ChatGPT typing effect.",
+    );
   }
 
   Future<void> _fakeChatGPTResponse(String fullText) async {
@@ -39,14 +42,13 @@ class _ChatPageState extends State<ChatPage> {
     final words = fullText.split(' ');
     String currentText = "";
 
-    // Add empty assistant message first
     setState(() {
       _messages.add({"role": "assistant", "content": ""});
     });
 
     for (int i = 0; i < words.length; i += 3) {
       final chunk = words.skip(i).take(3).join(' ');
-      await Future.delayed(const Duration(milliseconds: 200));
+      await Future.delayed(const Duration(milliseconds: 100));
       currentText += (currentText.isEmpty ? '' : ' ') + chunk;
       setState(() {
         _messages.last["content"] = currentText;
@@ -95,43 +97,142 @@ class _ChatPageState extends State<ChatPage> {
                 }
 
                 final msg = _messages[index];
-                return MessageBubble(
-                  isUser: msg["role"] == "user",
-                  message: msg["content"],
+                final isUser = msg["role"] == "user";
+
+                // User message → use MessageBubble
+                if (isUser) {
+                  return MessageBubble(
+                    isUser: true,
+                    message: msg["content"],
+                  );
+                }
+
+                // Assistant message → plain Markdown
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        // color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: MarkdownBody(
+                        data: msg["content"],
+                        selectable: true,
+                        styleSheet: MarkdownStyleSheet(
+                          p: const TextStyle(fontSize: 16, height: 1.4),
+                        ),
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
           ),
           const Divider(height: 1),
-          _buildInputArea(context),
+          _buildChatGPTStyleInput(context),
         ],
       ),
     );
   }
 
-  Widget _buildInputArea(BuildContext context) {
+  /// ChatGPT-style rounded input box with mic/send icon
+  Widget _buildChatGPTStyleInput(BuildContext context) {
+    final theme = Theme.of(context);
+
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                maxLines: null,
-                decoration: const InputDecoration(
-                  hintText: "Send a message...",
-                  border: OutlineInputBorder(),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        child: StatefulBuilder(
+          builder: (context, setInnerState) {
+            final focusNode = FocusNode();
+            bool isFocused = false;
+
+            focusNode.addListener(() {
+              setInnerState(() => isFocused = focusNode.hasFocus);
+            });
+
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              decoration: BoxDecoration(
+                color: isFocused ? Colors.white : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: isFocused
+                      ? theme.colorScheme.primary
+                      : Colors.grey.shade300,
+                  width: isFocused ? 1.5 : 1,
                 ),
+                boxShadow: isFocused
+                    ? [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+                    : [],
               ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              onPressed: _sendMessage,
-              icon: const Icon(Icons.send),
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ],
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                children: [
+                  const Icon(Icons.attach_file, color: Colors.grey, size: 22),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      focusNode: focusNode,
+                      controller: _controller,
+                      maxLines: null,
+                      style: const TextStyle(fontSize: 16),
+                      onChanged: (_) => setInnerState(() {}),
+                      decoration: const InputDecoration(
+                        hintText: "Ask anything",
+                        border: InputBorder.none,
+                        isCollapsed: true,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    transitionBuilder: (child, anim) =>
+                        ScaleTransition(scale: anim, child: child),
+                    child: _controller.text.isEmpty
+                        ? GestureDetector(
+                      key: const ValueKey("mic"),
+                      onTap: () {},
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: const BoxDecoration(
+                          color: Colors.black,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.mic,
+                            color: Colors.white, size: 18),
+                      ),
+                    )
+                        : GestureDetector(
+                      key: const ValueKey("send"),
+                      onTap: _sendMessage,
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.send,
+                            color: Colors.white, size: 18),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
