@@ -36,10 +36,18 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   get: ^4.6.6
-  flutter_markdown: ^0.7.3+1
+  flutter_markdown: ^0.7.1
+  flutter_streaming_text_markdown: ^1.3.2
   highlight: ^0.7.0
+  shimmer: ^3.0.0
   url_launcher: ^6.3.0
   markdown: 7.3.0
+  flutter_animate:
+
+dependency_overrides:
+  characters: ^1.4.0
+  gpt_markdown:
+    path: /Users/duynguyen/Downloads/gpt_markdown-main
 dev_dependencies:
   flutter_test:
     sdk: flutter
