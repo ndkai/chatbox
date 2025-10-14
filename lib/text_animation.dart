@@ -3,15 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 class MarkdownFadingStreamer extends StatefulWidget {
-  final Stream<String> tokenStream;
+  final StreamController<String> tokenStream;
   final Duration fadeDuration;
   final Duration chunkDebounce;
+  final ValueChanged<String> onChanged;
+   String text;
+   bool isStreaming;
 
-  const MarkdownFadingStreamer({
+   MarkdownFadingStreamer({
     super.key,
-    required this.tokenStream,
-    this.fadeDuration = const Duration(milliseconds: 300),
-    this.chunkDebounce = const Duration(milliseconds: 120),
+     this.text = "",
+     required this.tokenStream,
+     this.isStreaming = false,
+    this.fadeDuration = const Duration(milliseconds: 3000),
+    this.chunkDebounce = const Duration(milliseconds: 1200), required this.onChanged,
   });
 
   @override
@@ -24,23 +29,36 @@ class _MarkdownFadingStreamerState extends State<MarkdownFadingStreamer>
   final StringBuffer _stable = StringBuffer(); // text đã render xong
   final StringBuffer _pending = StringBuffer(); // text chờ render
   String _animating = '';
-
   late final AnimationController _fadeCtrl;
   late final Animation<double> _fadeAnim;
   Timer? _debounce;
 
+
   @override
   void initState() {
     super.initState();
+    print("hêhhe ${widget.isStreaming} ${widget.text}");
     _fadeCtrl = AnimationController(vsync: this, duration: widget.fadeDuration);
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeInOut);
 
-    // Lắng nghe stream SSE / mock
-    _sub = widget.tokenStream.listen((token) {
-      _pending.write(token);
-      _debounce?.cancel();
-      _debounce = Timer(widget.chunkDebounce, _startFade);
-    });
+    if(widget.isStreaming){
+      try{
+        _sub = widget.tokenStream.stream.listen((token) {
+          _pending.write(token);
+          _debounce?.cancel();
+          _debounce = Timer(widget.chunkDebounce, _startFade);
+        }, onDone: (){
+          widget.onChanged(_stable.toString());
+          _sub.cancel();
+
+        });
+      } catch(e){
+
+      }
+    } else {
+      _stable.write(widget.text);
+    }
+
   }
 
   void _startFade() {
