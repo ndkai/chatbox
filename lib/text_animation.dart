@@ -83,7 +83,7 @@ class _MarkdownFadingStreamerState extends State<MarkdownFadingStreamer>
             MarkdownBody(
               data: _stable.toString(), // phần text đã xong (opacity 1)
               styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
-                  .copyWith(p: const TextStyle(fontSize: 15, height: 1.4)),
+                  .copyWith(p: const TextStyle(fontSize: 13, height: 1.4)),
             ),
             // phần mới đến: fade-in dần
             if (_animating.isNotEmpty)
@@ -93,7 +93,7 @@ class _MarkdownFadingStreamerState extends State<MarkdownFadingStreamer>
                   data: visible,
                   styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
                       .copyWith(
-                    p: const TextStyle(fontSize: 15, height: 1.4),
+                    p: const TextStyle(fontSize: 13, height: 1.4),
                   ),
                 ),
               ),

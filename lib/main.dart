@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:chat_demo/text_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() => runApp(const ChatGPTMockApp());
 
@@ -112,16 +114,21 @@ Ví dụ công thức sữa Vinamilk Optimum Gold:
 """;
     final responses = fullText.split(" ");
     int i = 0;
+    final random = Random();
     Timer.periodic(const Duration(milliseconds: 500), (t) {
       if (i < fullText.length) {
-        streamCtrl.add(responses[i]);
-        i++;
+        final take = random.nextInt(10) + 3;
+        final chunk = responses.skip(i).take(take).join(" ");
+        streamCtrl.add(chunk + " ");
+        i += take;
         _scrollToBottom();
       } else {
         t.cancel();
         streamCtrl.close();
       }
     });
+
+
 }
 
 
@@ -143,12 +150,40 @@ Ví dụ công thức sữa Vinamilk Optimum Gold:
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("ChatGPT Mock", style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
         elevation: 0,
+        backgroundColor: Colors.white,
+        title: Row(
+          children: [
+            // 🔹 Avatar
+            SvgPicture.asset("assets/logo.svg",),
+            const SizedBox(width: 8),
+            // 🔹 Title
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Kids GPT",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 17,
+                  ),
+                ),
+                Text(
+                  "Trợ lý AI",
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
+          // 🔹 Message list
           Expanded(
             child: ListView.builder(
               controller: _scroll,
@@ -157,6 +192,7 @@ Ví dụ công thức sữa Vinamilk Optimum Gold:
               itemBuilder: (context, i) {
                 final msg = _messages[i];
                 final isUser = msg.role == "user";
+
                 return Align(
                   alignment:
                   isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -165,13 +201,25 @@ Ví dụ công thức sữa Vinamilk Optimum Gold:
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: isUser ? Colors.blue[50] : Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(12),
+                        topRight: const Radius.circular(12),
+                        bottomLeft:
+                        isUser ? const Radius.circular(12) : const Radius.circular(0),
+                        bottomRight:
+                        isUser ? const Radius.circular(0) : const Radius.circular(12),
+                      ),
                     ),
                     constraints: BoxConstraints(
                         maxWidth: MediaQuery.of(context).size.width * 0.9),
                     child: isUser
-                        ? Text(msg.text,
-                        style: const TextStyle(fontSize: 15, color: Colors.black))
+                        ? Text(
+                      msg.text,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
+                      ),
+                    )
                         : MarkdownFadingStreamer(
                       tokenStream: msg.stream!.stream,
                       fadeDuration: const Duration(milliseconds: 400),
@@ -182,53 +230,76 @@ Ví dụ công thức sữa Vinamilk Optimum Gold:
               },
             ),
           ),
-          _buildInputBar(),
+
+          // 🔹 Input bar
+          _buildInputBar()
         ],
       ),
     );
+
   }
 
   Widget _buildInputBar() {
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
           children: [
+            // 🔹 Input field
             Expanded(
-              child: TextField(
-                controller: _input,
-                decoration: InputDecoration(
-                  hintText: "Nhập câu hỏi...",
-                  fillColor: Colors.grey[100],
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide.none,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TextField(
+                  controller: _input,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.black87,
                   ),
-                  contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  decoration: const InputDecoration(
+                    hintText: "Hỏi bất cứ điều gì",
+                    hintStyle: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 15,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding:
+                    EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 8),
+
+            // 🔹 Send button
             InkWell(
               onTap: () => _sendMessage(_input.text),
               borderRadius: BorderRadius.circular(30),
               child: Container(
-                padding: const EdgeInsets.all(10),
+                width: 42,
+                height: 42,
                 decoration: const BoxDecoration(
                   color: Colors.black,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.send, color: Colors.white, size: 18),
+                child: const Icon(
+                  Icons.send_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
+
 }
 
 /// ------------------------------------------------------------

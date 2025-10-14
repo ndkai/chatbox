@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'package:flutter_streaming_text_markdown/flutter_streaming_text_markdown.dart';
 
 class KidsGPTChatPage extends StatefulWidget {
   const KidsGPTChatPage({super.key});
@@ -142,23 +141,23 @@ class _KidsGPTChatPageState extends State<KidsGPTChatPage> {
             : Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AnimatedOpacity(
-              opacity: 1,
-              duration: const Duration(milliseconds: 300),
-              child:
-              StreamingTextMarkdown(
-               text:  msg.content + '<span style="opacity:0.4">hahaha </span>',
-                animationsEnabled: true,
-                fadeInEnabled: true,
-                markdownEnabled: true,
-                // preset: LLMAnimationPresets.chatGPT,
-                // fadeInCurve: Curves.fastOutSlowIn,
-                // fadeInEnabled: true,
-                // fadeInDuration: Duration(milliseconds: 300),
-              )
-
-
-            ),
+            // AnimatedOpacity(
+            //   opacity: 1,
+            //   duration: const Duration(milliseconds: 300),
+            //   child:
+            //   StreamingTextMarkdown(
+            //    text:  msg.content + '<span style="opacity:0.4">hahaha </span>',
+            //     animationsEnabled: true,
+            //     fadeInEnabled: true,
+            //     markdownEnabled: true,
+            //     // preset: LLMAnimationPresets.chatGPT,
+            //     // fadeInCurve: Curves.fastOutSlowIn,
+            //     // fadeInEnabled: true,
+            //     // fadeInDuration: Duration(milliseconds: 300),
+            //   )
+            //
+            //
+            // ),
             const SizedBox(height: 8),
             if (!msg.isStreaming)
               Row(
