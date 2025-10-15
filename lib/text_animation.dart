@@ -37,7 +37,6 @@ class _MarkdownFadingStreamerState extends State<MarkdownFadingStreamer>
   @override
   void initState() {
     super.initState();
-    print("hêhhe ${widget.isStreaming} ${widget.text}");
     _fadeCtrl = AnimationController(vsync: this, duration: widget.fadeDuration);
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeInOut);
 
@@ -64,20 +63,25 @@ class _MarkdownFadingStreamerState extends State<MarkdownFadingStreamer>
   void _startFade() {
     if (_pending.isEmpty) return;
 
-    // lấy pending text để fade
-    setState(() {
-      _animating = _pending.toString();
-      _pending.clear();
-    });
+    final temp = _stable.toString() + _pending.toString();
 
-    // chạy fade từ 0 → 1
-    _fadeCtrl.forward(from: 0).whenComplete(() {
-      // khi fade xong, chuyển chunk đó thành stable text
+    // ✅ Kiểm tra markdown có hợp lệ không trước khi fade
+    if (_isValidMarkdown(temp)) {
       setState(() {
-        _stable.write(_animating);
-        _animating = '';
+        _animating = _pending.toString();
+        _pending.clear();
       });
-    });
+
+      _fadeCtrl.forward(from: 0).whenComplete(() {
+        setState(() {
+          _stable.write(_animating);
+          _animating = '';
+        });
+      });
+    } else {
+      // ❌ Nếu chưa hợp lệ: giữ _pending lại để cộng thêm chunk sau
+      // không render
+    }
   }
 
   @override
@@ -90,6 +94,7 @@ class _MarkdownFadingStreamerState extends State<MarkdownFadingStreamer>
 
   @override
   Widget build(BuildContext context) {
+
     return AnimatedBuilder(
       animation: _fadeAnim,
       builder: (context, _) {
@@ -120,4 +125,25 @@ class _MarkdownFadingStreamerState extends State<MarkdownFadingStreamer>
       },
     );
   }
+
+  bool _isValidMarkdown(String text) {
+    try {
+      // 1️⃣ Check markdown syntax basic — đóng đủ dấu `**`, `*`, `#`, ```
+      final boldOpened = RegExp(r'\*\*').allMatches(text).length % 2 == 0;
+      final italicOpened = RegExp(r'(?<!\*)\*(?!\*)').allMatches(text).length % 2 == 0;
+      final codeBlockOpened = RegExp(r'```').allMatches(text).length % 2 == 0;
+
+      if (!boldOpened || !italicOpened || !codeBlockOpened) return false;
+
+      // 2️⃣ Test parsing bằng cách dựng MarkdownBody "ẩn"
+      final widget = MarkdownBody(data: text);
+
+      return true;
+    } catch (e) {
+      // 3️⃣ Nếu parser throw error, markdown chưa hợp lệ
+      return false;
+    }
+  }
+
+
 }

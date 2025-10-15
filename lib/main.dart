@@ -76,13 +76,48 @@ Một loại sữa được coi là “tốt” không chỉ vì thương hiệu
 
 ---
 
+## 🧩 Top 5 thương hiệu sữa nổi bật
+
+### 1. **Meiji – Nhật Bản**
+- Meiji Infant (0–12M) và Meiji Step (1–3 tuổi) là 2 dòng được yêu thích nhất.  
+- Vị sữa nhạt, dễ uống, công thức “mát”, ít gây táo bón.  
+- Chứa DHA, ARA, taurine, nucleotides, vitamin và khoáng chất đầy đủ.  
+- **Ưu điểm:** Rất “hiền” với hệ tiêu hóa, hợp với thể trạng trẻ châu Á.  
+- **Nhược điểm:** Giá cao, cần mua đúng hàng chính hãng.
+
+---
+
+### 2. **Similac / Abbott – Mỹ**
+- Dòng **Similac 5G** hoặc **Similac IQ Plus HMO** nổi bật nhờ bổ sung **2'-FL HMO**, giúp tăng cường miễn dịch tự nhiên.  
+- Ngoài ra, Abbott có các dòng đặc biệt như *Similac Total Comfort* (dễ tiêu hóa) và *Similac GainPlus* (tăng cân).  
+- **Ưu điểm:** Công nghệ tiên tiến, nghiên cứu khoa học lâu năm.  
+- **Nhược điểm:** Giá thành cao, vị hơi ngọt.
+
+---
+
+### 3. **Friso Gold – Hà Lan**
+- Công nghệ **LockNutri™** giữ trọn vẹn dưỡng chất tự nhiên của sữa tươi.  
+- Chứa **Synbiotic (Probiotic + Prebiotic)** giúp hệ tiêu hóa khỏe mạnh.  
+- Vị sữa thanh, dễ hòa tan, bé dễ làm quen.  
+- **Ưu điểm:** Giúp bé tiêu hóa tốt, hiếm khi bị táo bón.  
+- **Nhược điểm:** Không phù hợp với trẻ dị ứng đạm bò.
+
+---
+
+### 4. **Vinamilk – Việt Nam**
+- Các dòng nổi bật: **Optimum Gold**, **Dielac Alpha**, **Colosbaby**.  
+- Tăng cường kháng thể IgG, bổ sung DHA, ARA, lysine và chất xơ hòa tan.  
+- **Ưu điểm:** Giá hợp lý, phù hợp thể trạng trẻ Việt, dễ mua.  
+- **Nhược điểm:** Chưa có nhiều phiên bản chuyên biệt (ví dụ: không lactose, đạm thủy phân).
+
+Ví dụ công thức sữa Vinamilk Optimum Gold:
 """;
     final responses = fullText.split(" ");
     int i = 0;
     final random = Random();
     Timer.periodic(const Duration(milliseconds: 500), (t) {
       if (i < responses.length) {
-        final take = random.nextInt(10) + 7;
+        final take = random.nextInt(10) + 1;
         final chunk = responses.skip(i).take(take).join(" ");
         streamCtrl.add(chunk + " ");
         i += take;
