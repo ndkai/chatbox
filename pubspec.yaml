@@ -20,7 +20,8 @@ dependencies:
   markdown: 7.3.0
   flutter_animate:
   flutter_svg:
-
+  lucide_icons:
+  http:
 dependency_overrides:
   characters: ^1.4.0
 
@@ -34,5 +35,5 @@ flutter:
 
   # 👇 Add your assets folder(s) here
   assets:
-    - assets/logo.svg
+    - assets/
 

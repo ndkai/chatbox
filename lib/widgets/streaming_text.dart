@@ -7,14 +7,14 @@ class MarkdownFadingStreamer extends StatefulWidget {
   final Duration fadeDuration;
   final Duration chunkDebounce;
   final ValueChanged<String> onChanged;
-   String text;
-   bool isStreaming;
+  String text;
+  bool isStreaming;
 
-   MarkdownFadingStreamer({
+  MarkdownFadingStreamer({
     super.key,
-     this.text = "",
-     required this.tokenStream,
-     this.isStreaming = false,
+    this.text = "",
+    required this.tokenStream,
+    this.isStreaming = false,
     this.fadeDuration = const Duration(milliseconds: 3000),
     this.chunkDebounce = const Duration(milliseconds: 1200), required this.onChanged,
   });
@@ -37,6 +37,7 @@ class _MarkdownFadingStreamerState extends State<MarkdownFadingStreamer>
   @override
   void initState() {
     super.initState();
+    print("kkkk ${widget.text}");
     _fadeCtrl = AnimationController(vsync: this, duration: widget.fadeDuration);
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeInOut);
 
@@ -106,7 +107,9 @@ class _MarkdownFadingStreamerState extends State<MarkdownFadingStreamer>
             MarkdownBody(
               data: _stable.toString(), // phần text đã xong (opacity 1)
               styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
-                  .copyWith(p: const TextStyle(fontSize: 13, height: 1.4)),
+                  .copyWith(
+                p: const TextStyle(fontSize: 13, height: 1.4),
+              ),
             ),
             // phần mới đến: fade-in dần
             if (_animating.isNotEmpty)
